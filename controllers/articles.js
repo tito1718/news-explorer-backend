@@ -20,7 +20,11 @@ const createArticle = (req, res, next) => {
     image,
     owner: req.user._id,
   })
-    .then((article) => res.status(201).send(article))
+    .then((article) => {
+      const articleData = article.toObject();
+      delete articleData.owner;
+      return res.status(201).send(articleData);
+    })
     .catch((error) => {
       if (error.name === 'ValidationError') {
         return next(new BadRequestError('Invalid article data'));
@@ -34,6 +38,7 @@ const deleteArticle = (req, res, next) => {
   const { articleId } = req.params;
 
   return Article.findById(articleId)
+    .select('+owner')
     .then((article) => {
       if (!article) {
         return next(new NotFoundError('Article not found'));
@@ -45,7 +50,11 @@ const deleteArticle = (req, res, next) => {
         );
       }
 
-      return article.deleteOne().then(() => res.send(article));
+      return article.deleteOne().then(() => {
+        const articleData = article.toObject();
+        delete articleData.owner;
+        return res.send(articleData);
+      });
     })
     .catch((error) => {
       if (error.name === 'CastError') {
