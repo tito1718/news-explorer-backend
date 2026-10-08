@@ -33,9 +33,19 @@ const validateArticleId = celebrate({
   }),
 });
 
+const validateNewsSearch = celebrate({
+  [Segments.QUERY]: Joi.object().keys({
+    q: Joi.string().trim().min(1).required(),
+    from: Joi.string().isoDate(),
+    to: Joi.string().isoDate(),
+    pageSize: Joi.number().integer().min(1).max(100),
+  }),
+});
+
 module.exports = {
   validateSignup,
   validateSignin,
   validateArticle,
   validateArticleId,
+  validateNewsSearch,
 };
